@@ -65,7 +65,6 @@ import U from '../parts/Utilities.js';
 const {
     extend,
     isArray,
-    isNumber,
     pick
 } = U;
 
@@ -454,13 +453,16 @@ Axis.prototype.setBreaks = function (
 
 addEvent(Series, 'afterGeneratePoints', function (): void {
     const {
-        xAxis,
-        yAxis,
+        isDirty,
+        options: { connectNulls },
         points,
-        options: { connectNulls }
+        xAxis,
+        yAxis
     } = this;
 
-    if (xAxis && yAxis && (xAxis.options.breaks || yAxis.options.breaks)) {
+    /* Set, or reset visibility of the points. Axis.setBreaks marks the series
+    as isDirty */
+    if (isDirty) {
         let i = points.length;
         while (i--) {
             const point = points[i];
@@ -470,16 +472,15 @@ addEvent(Series, 'afterGeneratePoints', function (): void {
             const isPointInBreak = (
                 !nullGap &&
                 (
-                    xAxis.isInAnyBreak(point.x, true) ||
-                    yAxis.isInAnyBreak(point.y, true)
+                    xAxis && xAxis.isInAnyBreak(point.x, true) ||
+                    yAxis && yAxis.isInAnyBreak(point.y, true)
                 )
             );
-            // Set point.isNull if in any break.
-            // If not in break, reset isNull to original value.
-            point.isNull = isPointInBreak || pick(
-                point.isValid && !point.isValid(),
-                point.x === null || !isNumber(point.y)
-            );
+            // Set point.visible if in any break.
+            // If not in break, reset visible to original value.
+            point.visible = isPointInBreak ?
+                false :
+                point.options.visible !== false;
         }
     }
 });
