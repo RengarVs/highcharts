@@ -9,7 +9,6 @@
     "type": "git",
     "url": "https://github.com/RengarVs/highcharts.git"
   },
-  "bugs": "https://github.com/RengarVs/highcharts/issues",
   "homepage": "http://www.highcharts.com",
   "keywords": [
     "charts",
